@@ -6,6 +6,7 @@ import elasticsearch from "elasticsearch";
 import { USER_INDEX, ITEM_INDEX } from "./constants";
 import { jwtWare, config } from "./middlewares/jwtWare";
 import bodybuilder from "bodybuilder";
+import { comparePassword, hashPassword } from "./utils/bcrypt";
 
 const app = express();
 
@@ -49,6 +50,9 @@ app.post("/registration", async (req, res) => {
     });
     console.log(userSearchResult);
     if (!userSearchResult.hits.hits.length) {
+      let createPassword = hashPassword(password);
+      console.log(createPassword);
+      req.body.password = createPassword;
       let newUser = await ESclient.index({
         index: USER_INDEX,
         type: "type",
@@ -86,6 +90,7 @@ app.post("/login", async (req, res) => {
     if (!logUser.length) {
       res.status(404).send("user not found");
     } else {
+      comparePassword(password, logUser[0]._source.password);
       delete logUser[0]._source.password;
       const token = jwt.sign({ sub: logUser[0]._id }, config.secret);
       res.status(201).send({ token, user: logUser[0]._source });
