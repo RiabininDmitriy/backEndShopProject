@@ -1,16 +1,14 @@
 import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
-import jwt from "jsonwebtoken";
 import elasticsearch from "elasticsearch";
-import { USER_INDEX, ITEM_INDEX } from "./constants";
-import { jwtWare, config } from "./middlewares/jwtWare";
-import bodybuilder from "bodybuilder";
-import { comparePassword, hashPassword } from "./utils/bcrypt";
+import { USER_INDEX, ITEM_INDEX, CATEGORY_INDEX } from "./constants";
+import router from "./routes";
+import { jwtWare } from "../back/middlewares/jwtWare";
 
 const app = express();
 
-const ESclient = new elasticsearch.Client({
+export const ESclient = new elasticsearch.Client({
   host: "localhost:9200",
   log: "trace"
 });
@@ -36,70 +34,9 @@ const createIndex = index => {
 
 createIndex(USER_INDEX);
 createIndex(ITEM_INDEX);
+createIndex(CATEGORY_INDEX);
 
-app.post("/registration", async (req, res) => {
-  try {
-    const { firstName, lastName, password, email, phoneNumber } = req.body;
-    const body = bodybuilder();
-    body.andQuery("match_phrase", "email", email);
-
-    const userSearchResult = await ESclient.search({
-      index: USER_INDEX,
-      type: "type",
-      body: body.build()
-    });
-    console.log(userSearchResult);
-    if (!userSearchResult.hits.hits.length) {
-      let createPassword = hashPassword(password);
-      console.log(createPassword);
-      req.body.password = createPassword;
-      let newUser = await ESclient.index({
-        index: USER_INDEX,
-        type: "type",
-        body: req.body
-      });
-      newUser = await ESclient.get({
-        index: USER_INDEX,
-        type: "type",
-        id: newUser._id
-      });
-
-      console.log(newUser);
-      delete newUser._source.password;
-      const token = jwt.sign({ sub: newUser._id }, config.secret);
-      res.status(201).send({ token, user: newUser._source });
-    }
-    res.status(400).send({ err: "User is exist" });
-  } catch (err) {
-    console.log(err);
-  }
-});
-
-app.post("/login", async (req, res) => {
-  try {
-    const { password, email } = req.body;
-    const body = bodybuilder();
-    body.andQuery("match_phrase", "email", email);
-    //   body.andQuery("match_phrase", "password", password);
-    let logUser = await ESclient.search({
-      index: USER_INDEX,
-      type: "type",
-      body: body.build()
-    });
-    logUser = logUser.hits.hits;
-    if (!logUser.length) {
-      res.status(404).send("user not found");
-    } else {
-      comparePassword(password, logUser[0]._source.password);
-      delete logUser[0]._source.password;
-      const token = jwt.sign({ sub: logUser[0]._id }, config.secret);
-      res.status(201).send({ token, user: logUser[0]._source });
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(500).send("internal server error");
-  }
-});
+router(app);
 
 app.listen(3003, function() {
   console.log("Example app listening on port 3003!");
