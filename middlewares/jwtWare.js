@@ -4,7 +4,8 @@ export const config = {
   secret: `JavaScript`
 };
 
-export function jwtWare() {
+export function jwtWare(req, res) {
+  console.log(`gfgfg`);
   const { secret } = config;
   return expressJwt({ secret }).unless({
     path: ["/login", "/registration"]

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "babel-node app.js"
+    "start": "babel-node app.js",
+    "restart": "sudo sysctl -w vm.max_map_count=262144 && sudo docker-compose down && sudo docker-compose up -d && sudo docker-compose logs -f"
   },
   "author": "",
   "license": "ISC",

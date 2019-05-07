@@ -3,6 +3,7 @@ import { comparePassword, hashPassword } from "../utils/bcrypt";
 import { config } from "../middlewares/jwtWare";
 import jwt from "jsonwebtoken";
 import { ESclient } from "../app";
+import { USER_INDEX } from "../constants";
 
 export const registration = async (req, res) => {
   try {
@@ -30,7 +31,7 @@ export const registration = async (req, res) => {
       });
 
       delete newUser._source.password;
-      const token = jwt.sign({ sub: newUser._id }, config.secret);
+      const token = jwt.sign({ id: newUser._id }, config.secret);
       res.status(201).send({ token, user: newUser._source });
     }
     res.status(400).send({ err: "User is exist" });
@@ -56,7 +57,7 @@ export const login = async (req, res) => {
     } else {
       comparePassword(password, logUser[0]._source.password);
       delete logUser[0]._source.password;
-      const token = jwt.sign({ sub: logUser[0]._id }, config.secret);
+      const token = jwt.sign({ id: logUser[0]._id }, config.secret);
       res.status(201).send({ token, user: logUser[0]._source });
     }
   } catch (error) {
