@@ -5,9 +5,8 @@ export const config = {
 };
 
 export function jwtWare(req, res) {
-  console.log(`gfgfg`);
   const { secret } = config;
   return expressJwt({ secret }).unless({
-    path: ["/login", "/registration"]
+    path: ["/login", "/registration", "/get-item"]
   });
 }

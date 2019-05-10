@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import cors from "cors";
 import elasticsearch from "elasticsearch";
-import { USER_INDEX, ITEM_INDEX, CATEGORY_INDEX } from "./constants";
+import { USER_INDEX, CATEGORY_INDEX, ITEM_INDEX } from "./constants";
 import router from "./routes";
 import { jwtWare } from "../back/middlewares/jwtWare";
 
@@ -32,8 +32,27 @@ const createIndex = index => {
   }
 };
 
+const createIndexItem = ITEM_INDEX => {
+  try {
+    return ESclient.indices.create({
+      index: ITEM_INDEX,
+      type: "type",
+      body: {
+        mappings: {
+          type: {
+            properties: {
+              location: { type: "geo_point" }
+            }
+          }
+        }
+      }
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
 createIndex(USER_INDEX);
-createIndex(ITEM_INDEX);
 createIndex(CATEGORY_INDEX);
 
 router(app);

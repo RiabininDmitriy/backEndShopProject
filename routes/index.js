@@ -4,6 +4,7 @@ import {
   getAllCategory
 } from "../controllers/category.controller";
 import { getUserInfo } from "../controllers/personalInfo.controller";
+import { addItem, getItem } from "../controllers/addItems.controller";
 
 module.exports = function(app) {
   app.post("/registration", registration);
@@ -13,4 +14,7 @@ module.exports = function(app) {
   app.get("/categories", getAllCategory);
 
   app.get("/user-info", getUserInfo);
+
+  app.post("/post-item", addItem);
+  app.get("/get-item", getItem);
 };
