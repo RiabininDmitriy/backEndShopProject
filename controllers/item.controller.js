@@ -5,8 +5,7 @@ import { ITEM_INDEX } from "../constants";
 export const addItem = async (req, res) => {
   try {
     const { itemName, category, price, firstName, lastName } = req.body;
-    const body = bodybuilder();
-    body.andQuery("match_phrase", "itemName", itemName);
+
     let newItem = await ESclient.index({
       index: ITEM_INDEX,
       type: "type",
@@ -20,6 +19,7 @@ export const addItem = async (req, res) => {
 
 export const getItem = async (req, res) => {
   try {
+    const { itemName } = req.query;
     const body = bodybuilder();
     body.andQuery("match_phrase", "itemName", itemName);
 
@@ -29,7 +29,7 @@ export const getItem = async (req, res) => {
       body: body.build()
     });
     item = item.hits.hits;
-    res.status(201).send({ item: [] });
+    res.status(201).send(item);
   } catch (err) {
     console.log(err);
   }
