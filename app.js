@@ -32,11 +32,10 @@ const createIndex = index => {
   }
 };
 
-const createIndexItem = ITEM_INDEX => {
+const createIndexItem = () => {
   try {
     return ESclient.indices.create({
       index: ITEM_INDEX,
-      type: "type",
       body: {
         mappings: {
           type: {
@@ -54,6 +53,7 @@ const createIndexItem = ITEM_INDEX => {
 
 createIndex(USER_INDEX);
 createIndex(CATEGORY_INDEX);
+createIndexItem();
 
 router(app);
 

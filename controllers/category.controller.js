@@ -22,7 +22,16 @@ export const getAllCategory = async (req, res) => {
       size: 100
     });
     allCategory = allCategory.hits.hits;
-    res.status(200).send(allCategory);
+    let modifyCategory = [];
+    for (let item of allCategory) {
+      const newItem = {};
+      newItem.key = item._id;
+      newItem.value = item._id;
+      newItem.text = item._source.name;
+
+      modifyCategory.push(newItem);
+    }
+    res.status(200).send(modifyCategory);
   } catch (err) {
     console.log(err);
   }
