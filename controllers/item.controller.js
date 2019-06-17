@@ -17,23 +17,35 @@ export const addItem = async (req, res) => {
   }
 };
 
-export const getItem = async (req, res) => {
+export const getItems = async (req, res) => {
   try {
-    const { itemName, categoryId } = req.query;
+    const { itemName, categoryId, lat, lon } = req.query;
     const body = bodybuilder();
-    body.andQuery("match_phrase", "itemName", itemName);
-
-    if (categoryId.length) {
+    body.andQuery("match_phrase", "title", itemName);
+    if (categoryId) {
       body.andQuery("match_phrase", "categoryId", categoryId);
     }
+    if (lat && lon) {
+      body.andFilter("geo_distance", {
+        distance: `10mi`,
+        location: {
+          lat,
+          lon
+        }
+      });
+    }
 
-    let item = await ESclient.search({
+    let items = await ESclient.search({
       index: ITEM_INDEX,
       type: "type",
       body: body.build()
     });
-    item = item.hits.hits;
-    res.status(201).send(item);
+
+    items = items.hits.hits.map(item => {
+      item._source.id = item._id;
+      return item._source;
+    });
+    res.status(201).send(items);
   } catch (err) {
     console.log(err);
   }
@@ -57,4 +69,32 @@ export const getMyItems = async (req, res) => {
   });
 
   res.status(201).send(itemsList);
+};
+
+export const getItemById = async (req, res) => {
+  const { id } = req.params;
+
+  const item = await ESclient.get({
+    index: ITEM_INDEX,
+    type: "type",
+    id: id
+  });
+
+  res.status(201).send(item._source);
+};
+
+export const deleteItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const item = await ESclient.delete({
+      id: id,
+      index: ITEM_INDEX,
+      type: "type"
+    });
+
+    res.status(200).send(item);
+  } catch (err) {
+    console.log(err);
+  }
 };

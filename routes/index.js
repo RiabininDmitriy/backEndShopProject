@@ -3,8 +3,17 @@ import {
   createCategory,
   getAllCategory
 } from "../controllers/category.controller";
-import { getUserInfo } from "../controllers/personalInfo.controller";
-import { addItem, getItem, getMyItems } from "../controllers/item.controller";
+import {
+  getUserInfo,
+  updateUser
+} from "../controllers/personalInfo.controller";
+import {
+  addItem,
+  getMyItems,
+  getItems,
+  getItemById,
+  deleteItem
+} from "../controllers/item.controller";
 
 module.exports = function(app) {
   app.post("/registration", registration);
@@ -14,9 +23,12 @@ module.exports = function(app) {
   app.get("/categories", getAllCategory);
 
   app.get("/user-info", getUserInfo);
+  app.put("/update-user", updateUser);
 
   app.post("/post-item", addItem);
-  app.get("/get-item", getItem);
+  app.get("/get-item", getItems);
+  app.get("/get-item/:id", getItemById);
+  app.delete("/item/:id", deleteItem);
 
   app.get("/get-my-items", getMyItems);
 };
