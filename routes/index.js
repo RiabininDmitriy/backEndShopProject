@@ -12,7 +12,8 @@ import {
   getMyItems,
   getItems,
   getItemById,
-  deleteItem
+  deleteItem,
+  updateItem
 } from "../controllers/item.controller";
 
 module.exports = function(app) {
@@ -29,6 +30,7 @@ module.exports = function(app) {
   app.get("/get-item", getItems);
   app.get("/get-item/:id", getItemById);
   app.delete("/item/:id", deleteItem);
+  app.put("/item/:id", updateItem);
 
   app.get("/get-my-items", getMyItems);
 };

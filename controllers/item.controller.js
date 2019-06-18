@@ -73,12 +73,16 @@ export const getMyItems = async (req, res) => {
 
 export const getItemById = async (req, res) => {
   const { id } = req.params;
+  const { id: userId } = req.user;
 
   const item = await ESclient.get({
     index: ITEM_INDEX,
     type: "type",
     id: id
   });
+  if (item._source.userId === userId) {
+    item._source.isOwn = true;
+  }
 
   res.status(201).send(item._source);
 };
@@ -97,4 +101,25 @@ export const deleteItem = async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+};
+
+export const updateItem = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await ESclient.update({
+      id: id,
+      index: ITEM_INDEX,
+      type: "type",
+      body: {
+        doc: req.body
+      },
+      refresh: true
+    });
+    let itemInfo = await ESclient.get({
+      index: ITEM_INDEX,
+      type: "type",
+      id: id
+    });
+    res.status(201).send(itemInfo._source);
+  } catch (err) {}
 };
