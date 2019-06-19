@@ -38,6 +38,7 @@ export const getItems = async (req, res) => {
     let items = await ESclient.search({
       index: ITEM_INDEX,
       type: "type",
+      size: 100,
       body: body.build()
     });
 
@@ -60,6 +61,7 @@ export const getMyItems = async (req, res) => {
   let itemsList = await ESclient.search({
     index: ITEM_INDEX,
     type: "type",
+    size: 100,
     body: body.build()
   });
 
